@@ -1,0 +1,339 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": 6,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "P5697886F9CA74929"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "kW",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 54,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "evse_meas_charging_session_outputenergy {host=\"influxdb\", topic=\"0106e22egeneva/pecc/RTC Quebec/evse/1/meas\"}"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Output energy evse 1"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "evse_meas_charging_session_outputenergy {host=\"influxdb\", topic=\"0106e22egeneva/pecc/RTC Quebec/evse/10/meas\"}"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Output energy evse 10"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "evse_meas_charging_session_outputenergy {host=\"influxdb\", topic=\"0106e22egeneva/pecc/RTC Quebec/evse/11/meas\"}"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Output energy evse 11"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "evse_meas_charging_session_outputenergy {host=\"influxdb\", topic=\"0106e22egeneva/pecc/RTC Quebec/evse/12/meas\"}"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Output energy evse 12"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "evse_meas_charging_session_outputenergy {host=\"influxdb\", topic=\"0106e22egeneva/pecc/RTC Quebec/evse/13/meas\"}"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Output energy evse 13"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "evse_meas_charging_session_outputenergy {host=\"influxdb\", topic=\"0106e22egeneva/pecc/RTC Quebec/evse/14/meas\"}"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Output energy evse 14"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "evse_meas_charging_session_outputenergy {host=\"influxdb\", topic=\"0106e22egeneva/pecc/RTC Quebec/evse/15/meas\"}"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Output energy evse 15"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "evse_meas_charging_session_outputenergy {host=\"influxdb\", topic=\"0106e22egeneva/pecc/RTC Quebec/evse/16/meas\"}"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Output energy evse 16"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "evse_meas_charging_session_outputenergy {host=\"influxdb\", topic=\"0106e22egeneva/pecc/RTC Quebec/evse/17/meas\"}"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Output energy evse 17"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "evse_meas_charging_session_outputenergy {host=\"influxdb\", topic=\"0106e22egeneva/pecc/RTC Quebec/evse/2/meas\"}"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Output energy evse 2"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "evse_meas_charging_session_outputenergy {host=\"influxdb\", topic=\"0106e22egeneva/pecc/RTC Quebec/evse/3/meas\"}"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Output energy evse 3"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "evse_meas_charging_session_outputenergy {host=\"influxdb\", topic=\"0106e22egeneva/pecc/RTC Quebec/evse/4/meas\"}"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Output energy evse 4"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "evse_meas_charging_session_outputenergy {host=\"influxdb\", topic=\"0106e22egeneva/pecc/RTC Quebec/evse/5/meas\"}"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Output energy evse 5"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "evse_meas_charging_session_outputenergy {host=\"influxdb\", topic=\"0106e22egeneva/pecc/RTC Quebec/evse/6/meas\"}"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Output energy evse 6"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "evse_meas_charging_session_outputenergy {host=\"influxdb\", topic=\"0106e22egeneva/pecc/RTC Quebec/evse/7/meas\"}"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Output energy evse 7"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "evse_meas_charging_session_outputenergy {host=\"influxdb\", topic=\"0106e22egeneva/pecc/RTC Quebec/evse/8/meas\"}"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Output energy evse 8"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "evse_meas_charging_session_outputenergy {host=\"influxdb\", topic=\"0106e22egeneva/pecc/RTC Quebec/evse/9/meas\"}"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Output energy evse 9"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "right",
+          "showLegend": false
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "10.0.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "P5697886F9CA74929"
+          },
+          "query": "from(bucket: \"emobility\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"mqtt_consumer\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"evse_meas_charging_session_outputenergy\")\r\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\r\n  |> yield(name: \"mean\")",
+          "refId": "A"
+        }
+      ],
+      "title": "Power consumption",
+      "type": "timeseries"
+    }
+  ],
+  "refresh": "",
+  "schemaVersion": 38,
+  "style": "dark",
+  "tags": [],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-12h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "Enegry",
+  "uid": "emobility-dashboard_eneregy",
+  "version": 1,
+  "weekStart": ""
+}

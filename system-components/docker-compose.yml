@@ -1,0 +1,245 @@
+version: '3.8'
+services:
+########============= DATABASE=====================################
+  postgres-service:
+    image: emobilitycontianer.azurecr.io/postgres:15.3
+    container_name: postgres-app
+    restart: always
+    environment:
+      - POSTGRES_DB=keycloakdb
+      - POSTGRES_USER=$(postgresDbUser)
+      - POSTGRES_PASSWORD=$(postgresDbPassword)
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      #- ./ssl:/etc/postgresql/ssl
+      #- ./postgres_conf:/etc/postgresql
+    networks:
+      - emobility-net
+    healthcheck:
+      test: ["CMD-SHELL", "sh -c 'pg_isready -U $(postgresDbUser) -d keycloakdb'"]
+      interval: 5s
+      timeout: 30s
+      retries: 3
+
+############
+  keycloak:
+    image: emobilitycontianer.azurecr.io/hmi-keycloak:$(RELEASE_ARTIFACTS_HMI-KEYCLOAK_BUILDNUMBER)
+    container_name: keycloak-app
+    restart: always
+    environment:
+      - KEYCLOAK_ADMIN=$(keycloakUser)
+      - KEYCLOAK_ADMIN_PASSWORD=$(keycloakPassword)
+      - KC_DB=postgres
+      - KC_DB_URL=jdbc:postgresql://postgres-service:5432/keycloakdb
+      - KC_DB_USERNAME=$(postgresDbUser)
+      - KC_DB_PASSWORD=$(postgresDbPassword)
+      - KC_HOSTNAME_STRICT=true
+      - KC_HOSTNAME_STRICT_HTTPS=true
+      - KC_HTTP_RELATIVE_PATH=/auth
+      - KC_PROXY=edge
+    command:
+      - "-Dkeycloak.migration.action=import"
+      - "-Dkeycloak.migration.provider=singleFile"
+      - "-Dkeycloak.migration.file=/opt/keycloak/data/import/realm-import.json"
+      - "-Dkeycloak.migration.strategy=IGNORE_EXISTING"
+      - start
+      - --proxy=edge
+     #- --optimized
+      - --hostname-strict=false
+      - --import-realm
+      - --spi-theme-welcome-theme=custom-theme
+      - --spi-theme-static-max-age=-1
+      - --spi-theme-cache-themes=false
+      - --spi-theme-cache-templates=false
+    ports:
+      - "8090:8080"
+    depends_on:
+      postgres-service:
+        condition: service_healthy
+    volumes:
+      - keycloak_data:/opt/jboss/keycloak/standalone/data
+      - ./keycloak-setting/realm-import.json:/opt/keycloak/data/import/realm-import.json
+    networks:
+      - emobility-net
+
+ ##### ============ LOGGING-TOOLS //OPENSEARCH//OPENSEARCH-DASHBOARDS//LOGSTASH//FILEBEAT ========= #######
+  opensearch: 
+    image: opensearchproject/opensearch:latest
+    container_name: opensearch
+    environment:
+      - cluster.name=opensearch-cluster # Name the cluster
+      - node.name=opensearch # Name the node that will run in this container
+      - discovery.seed_hosts=opensearch # Nodes to look for when discovering the cluster
+      - cluster.initial_cluster_manager_nodes=opensearch # Nodes eligible to serve as cluster manager
+      - bootstrap.memory_lock=true # Disable JVM heap memory swapping
+      - plugins.security.restapi.roles_enabled=["all_access", "security_rest_api_access"]
+      - "OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m"
+      - "DISABLE_SECURITY_PLUGIN=true " # Set min and max JVM heap sizes to at least 50% of system RAM
+    ulimits:
+      memlock:
+        soft: -1 # Set memlock to unlimited (no soft or hard limit) ##
+        hard: -1
+      nofile:
+        soft: 262144 #Maximum number of open files for the opensearch user - set to at least 65536
+        hard: 262144
+    volumes:
+      - opensearch_data:/usr/share/opensearch/data # Creates volume called opensearch-data1 and mounts it to the container
+    ports:
+      - 9200:9200 # REST API
+      - 9600:9600 # Performance Analyzer
+    networks:
+      - emobility-net
+
+  opensearch-dashboards:
+    image: opensearchproject/opensearch-dashboards:latest # Make sure the version of opensearch-dashboards matches the version of opensearch installed on other nodes
+    container_name: opensearch-dashboards
+    ports:
+      - 5601:5601 # Map host port 5601 to container port 5601
+    expose:
+      - "5601" # Expose port 5601 for web access to OpenSearch Dashboards
+    environment:
+      - "OPENSEARCH_HOSTS=https://opensearch:9200"
+      #- "SERVER_BASEPATH=/opensearch" # Set your desired subpath
+      #- "SERVER_REWRITEBASEPATH=true"
+    depends_on: 
+      - opensearch
+    networks:
+      - emobility-net
+  filebeat:
+    image: emobilitycontianer.azurecr.io/filebeat:8.10.2
+    container_name: filebeat
+    user: root
+    volumes:
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/log/syslog:/var/log/syslog:ro
+      - /var/log/auth.log:/var/log/auth.log:ro
+      - /var/log/messages:/var/log/messages:ro
+      - /var/log/audit:/var/log/audit:ro
+      - ./filebeat.yml:/usr/share/filebeat/filebeat.yml
+    depends_on:
+      - opensearch
+      - logstash
+    networks:
+      - emobility-net
+
+  logstash:
+    image: opensearchproject/logstash-oss-with-opensearch-output-plugin:latest
+    user: root
+    container_name: logstash
+    volumes:
+      - ./logstash/:/usr/share/logstash/pipeline
+      - logstash_data:/usr/share/logstash/data/
+    environment:
+      - "ES_HOST=https://opensearch:9200"
+      #- xpack.monitoring.enabled=false
+      #- outputs.opensearch=https//admin:admin@opensearch:9200
+      - ecs_compatibility=disabled
+    command: ["-f", "/usr/share/logstash/pipeline/logstash.conf"]
+    ports:
+      - "5044:5044"
+      - "9601:9601"
+    depends_on: 
+      - opensearch
+    networks:
+      - emobility-net
+##########================ // MQTT // =============#############
+  mqtt:
+    image: eclipse-mosquitto
+    container_name: mqtt
+    restart: always
+    user: "1000:1000"
+    volumes:
+      - ./mqtt_conf:/mosquitto/config/
+      #- ./ssl:/mosquitto/certs/
+    ports:
+      - 9001:9001
+      - 1883:1883
+    networks:
+      - emobility-net
+##########===========//MONITORING-TOOLS// GRAFANA// INFLUXDB// TELEGRAF//==========##############
+  influxdb:
+    image: influxdb
+    container_name: influxdb
+    restart: always
+    ports:
+      - "8086:8086"
+    networks:
+      - emobility-net
+    volumes:
+      - influxdb_data:/var/lib/influxdb2
+      - influxdb_config:/etc/influxdb2
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=$(influxDBUser)
+      - DOCKER_INFLUXDB_INIT_PASSWORD=$(influxDBPassword)
+      - DOCKER_INFLUXDB_INIT_ORG=$(influxDBOrg)
+      - DOCKER_INFLUXDB_INIT_BUCKET=$(influxDBBucket)
+      - DOCKER_INFLUXDB_INIT_RETENTION=1w
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=$(influxDBToken)
+
+  telegraf:
+    image: telegraf
+    container_name: telegraf
+    restart: always
+    volumes:
+      - ./telegraf.conf:/etc/telegraf/telegraf.conf:ro
+    depends_on:
+      - influxdb
+    links:
+      - influxdb
+    ports:
+    - '8125:8125'
+    networks:
+      - emobility-net
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    restart: always
+    ports:
+      - "3000:3000"
+    networks:
+      - emobility-net
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURTY_ADMIN_PASSWORD=Hitachi@123
+      #- GF_SERVER_ROOT_URL=%(protocol)s://%(domain)s:%(http_port)s/grafana/
+      #- GF_SERVER_SERVE_FROM_SUB_PATH=true
+    volumes:
+      - ./grafana-provisioning:/etc/grafana/provisioning
+      - grafana_data:/var/lib/grafana
+    links:
+      - influxdb
+    depends_on:
+      - influxdb
+
+  nginx:
+    image: nginx:latest
+    user: root
+    container_name: nginx
+    restart: on-failure
+    volumes:
+      - ./nginx_conf/default.conf:/etc/nginx/conf.d/default.conf
+      - ./ssl/:/etc/nginx/certs/
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+        - emobility-net
+
+volumes:
+  grafana_data: {}
+  influxdb_data: {}
+  influxdb_config: {}
+  opensearch_data: {}
+  logstash_data: {}
+  pgadmin_data: {}
+  postgres_data: {}
+  keycloak_data: {}
+
+networks:
+  emobility-net:
+    external: true

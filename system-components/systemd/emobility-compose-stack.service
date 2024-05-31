@@ -1,0 +1,47 @@
+
+## sudo vi /etc/systemd/system/emobility-compose-stack.service
+[Unit]
+Description=Check Docker Compose and start Docker Compose files
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=simple
+#Type=oneshot
+ExecStartPre=/bin/systemctl is-active --quiet docker.service
+ExecStart=/bin/bash -c '\
+  if ! [ -x /usr/local/bin/docker-compose ]; then \
+    echo "Docker Compose is not installed. Installing..."; \
+    sudo cp ~/startup/docker-compose /usr/local/bin/docker-compose; \
+    sudo chmod +x /usr/local/bin/docker-compose; \
+  else \
+    echo "Docker Compose is already installed."; \
+  fi; \
+  docker-compose -f /home/Administrator1/infra/system-components/docker-compose.yml up -d; \
+  sleep 60; \
+  docker-compose -f /home/Administrator1/App-config/docker-application-components-master.yml up -d; \
+  while true; do \
+    restarting_exited_containers=$(docker ps -a --format "{{.Names}} {{.Status}}" | grep -E "restarting||Exited||created" | grep -v " Up " | awk "{print \$1}"); \
+    if [ ! -z "$restarting_exited_containers" ]; then \
+      for container in $restarting_exited_containers; do \
+        docker restart $container && echo "Container $container restarted successfully." || echo "Failed to restart container $container."; \
+      done; \
+    fi; \
+      echo " Exited and restarting services are restarted successfully for check container logs for any service related issues $(docker ps -a --format "{{.Names}} {{.Status}}" | grep -E "restarting||Exited"| grep -v " Up " | awk "{print \$1}")"; \
+    sleep 300; \
+  done'
+
+
+Restart=always
+#RestartSec=10s
+#RemainAfterExit=yes
+[Install]
+WantedBy=multi-user.target
+
+### require to change the compose file path and Docker-compose application path 
+## sudo systemctl daemon-reload
+##sudo systemctl enable emobility-compose-stack.service   \\ to enable services
+## sudo sytemctl start emobility-compose-stack.service     \\ to start service
+## sudo systemctl status emobility-compose-stack.service    \\ to check status
+## journalctl -u emobility-compose-stack.service             \\to check detail logs
+## sudo systemctl stop emobility-compose-stack.service        \\ to stop service

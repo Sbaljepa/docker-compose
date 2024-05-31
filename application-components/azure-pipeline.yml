@@ -1,0 +1,348 @@
+trigger: none
+
+pool:
+  vmImage: ubuntu-latest
+
+# pool:
+#   name: E-Mobility Build Agent
+
+variables:
+  - group: commonVariable-ng
+  - group: commonVariable-on-prem
+
+resources:
+  repositories:
+    - repository: backend-configuration-service
+      type: git
+      name: E-Mobility-Group-Control/backend-configuration-service
+      ref: qa
+    - repository: backend-dataprocessor-service
+      type: git
+      name: E-Mobility-Group-Control/backend-dataprocessor-service
+      ref: qa
+    - repository: csms-algorithmapi-service
+      type: git
+      name: E-Mobility-Group-Control/csms-algorithmapi-service
+      ref: qa
+    - repository: csms-algorithm-service
+      type: git
+      name: E-Mobility-Group-Control/csms-algorithm-service
+      ref: qa
+    - repository: csms-ocppserver-service
+      type: git
+      name: E-Mobility-Group-Control/csms-ocppserver-service
+      ref: qa
+    - repository: hmi-ng-dispenser-app
+      type: git
+      name: E-Mobility-Group-Control/hmi-ng-dispenser-app
+      ref: qa
+    - repository: hmi-on-prem-local-app
+      type: git
+      name: E-Mobility-Group-Control/hmi-on-prem-local-app
+      ref: qa
+stages:
+  - stage: ConfigurationBuild
+    displayName: "backend-configuration-service build"
+    jobs:
+    - job: Build
+      steps:
+      # - script: docker system prune -f
+      - checkout: self
+      - checkout: backend-configuration-service
+        clean: true
+      # - script: ls -R 
+      - template: template/job-template.yml@backend-configuration-service
+        parameters:
+          yesNo: true
+
+  - stage: DataprocessorBuild
+    displayName: "backend-dataprocessor-service build"
+    jobs:
+    - job: Build
+      steps:
+      # - script: docker system prune -f
+      - checkout: self
+      - checkout: backend-dataprocessor-service
+        clean: true
+      - template: template/job-template.yml@backend-dataprocessor-service
+        parameters:
+          yesNo: true
+
+  - stage: AlgorithapiBuild
+    displayName: "csms-algorithmapi-service build"
+    jobs:
+    - job: Build
+      steps:
+      # - script: docker system prune -f      
+      - checkout: self
+      - checkout: csms-algorithmapi-service
+        clean: true
+      - template: template/job-template.yml@csms-algorithmapi-service
+        parameters:
+          yesNo: true
+
+  - stage: AlgorithmBuild
+    displayName: "csms-algorithm-service build"
+    jobs:
+    - job: Build
+      steps:
+      # - script: docker system prune -f      
+      - checkout: self
+      - checkout: csms-algorithm-service
+        clean: true
+      - template: template/job-template.yml@csms-algorithm-service
+        parameters:
+          yesNo: true
+
+  - stage: OcppBuild
+    displayName: "csms-ocppserver-service build"
+    jobs:
+    - job: Build
+      steps:
+      # - script: docker system prune -f      
+      - checkout: self
+      - checkout: csms-ocppserver-service
+        clean: true
+      - template: template/job-template.yml@csms-ocppserver-service
+        parameters:
+          yesNo: true
+
+  # - stage: NgBuildQACloud
+  #   displayName: "ng-qa-build"
+  #   variables:
+  #    - group: qa-env
+  #   jobs:
+  #   - job: Build
+  #     steps:
+  #     # - script: docker system prune -f      
+  #     - checkout: self
+  #     - checkout: hmi-ng-dispenser-app
+  #       clean: true
+  #     - template: ng-dispenser-hmi/template/job-template.yml@hmi-ng-dispenser-app
+  #       parameters:
+  #         buildQA: true
+
+  # - stage: NgBuildQACloud2
+  #   displayName: "ng-qa2-build"
+  #   variables:
+  #    - group: qa2-env
+  #   jobs:
+  #   - job: Build
+  #     steps:
+  #     # - script: docker system prune -f      
+  #     - checkout: self
+  #     - checkout: hmi-ng-dispenser-app
+  #       clean: true
+  #     - template: ng-dispenser-hmi/template/job-template.yml@hmi-ng-dispenser-app
+  #       parameters:
+  #         buildQA: true
+
+  # - stage: NgBuildQAPuneEXT
+  #   displayName: "ng-ext-pnqa-build"
+  #   variables:
+  #    - group: ext-pn-env
+  #   jobs:
+  #   - job: Build
+  #     steps:
+  #     # - script: docker system prune -f      
+  #     - checkout: self
+  #     - checkout: hmi-ng-dispenser-app
+  #       clean: true
+  #     - template: ng-dispenser-hmi/template/job-template.yml@hmi-ng-dispenser-app
+  #       parameters:
+  #         buildQA: true
+
+  # - stage: NgBuildQABlrEXT
+  #   displayName: "ng-ext-blrqa-build"
+  #   variables:
+  #    - group: ext-blr-env
+  #   jobs:
+  #   - job: Build
+  #     steps:
+  #     # - script: docker system prune -f      
+  #     - checkout: self
+  #     - checkout: hmi-ng-dispenser-app
+  #       clean: true
+  #     - template: ng-dispenser-hmi/template/job-template.yml@hmi-ng-dispenser-app
+  #       parameters:
+  #         buildQA: true
+
+  - stage: NgBuildQAPuneIpcCH
+    displayName: "ng-Pune-ipc-ch-build"
+    variables:
+     - group: pune-ipc-hmi-ch
+    jobs:
+    - job: Build
+      steps:
+      # - script: docker system prune -f      
+      - checkout: self
+      - checkout: hmi-ng-dispenser-app
+        clean: true
+      - template: ng-dispenser-hmi/template/job-template.yml@hmi-ng-dispenser-app
+        parameters:
+          buildQA: true
+
+  # - stage: NgBuildQAPuneIpcVJ
+  #   displayName: "ng-Pune-ipc-vj-build"
+  #   variables:
+  #    - group: ipc-env-vj
+  #   jobs:
+  #   - job: Build
+  #     steps:
+  #     # - script: docker system prune -f      
+  #     - checkout: self
+  #     - checkout: hmi-ng-dispenser-app
+  #       clean: true
+  #     - template: ng-dispenser-hmi/template/job-template.yml@hmi-ng-dispenser-app
+  #       parameters:
+  #         buildQA: true
+
+  # - stage: NgBuildQABlrIpc
+  #   displayName: "ng-ipc-blrqa-build"
+  #   variables:
+  #    - group: ipc2-env
+  #   jobs:
+  #   - job: Build
+  #     steps:
+  #     # - script: docker system prune -f      
+  #     - checkout: self
+  #     - checkout: hmi-ng-dispenser-app
+  #       clean: true
+  #     - template: ng-dispenser-hmi/template/job-template.yml@hmi-ng-dispenser-app
+  #       parameters:
+  #         buildQA: true
+
+  # - stage: NgBuildQAGeneva2
+  #   displayName: "ng-geneva-qa-build"
+  #   variables:
+  #    - group: geneva-qa-env
+  #   jobs:
+  #   - job: Build
+  #     steps:
+  #     # - script: docker system prune -f      
+  #     - checkout: self
+  #     - checkout: hmi-ng-dispenser-app
+  #       clean: true
+  #     - template: ng-dispenser-hmi/template/job-template.yml@hmi-ng-dispenser-app
+  #       parameters:
+  #         buildQA: true
+
+  # - stage: OnPremBuildQACloud
+  #   displayName: "on-prem-qa-build"
+  #   variables:
+  #    - group: qa-env
+  #   jobs:
+  #   - job: Build
+  #     steps:
+  #     # - script: docker system prune -f      
+  #     - checkout: self
+  #     - checkout: hmi-on-prem-local-app
+  #       clean: true
+  #     - template: on-prem-local-hmi/template/job-template.yml@hmi-on-prem-local-app
+  #       parameters:
+  #         buildQA: true
+
+  # - stage: OnPremBuildQACloud2
+  #   displayName: "on-prem-qa2-build"
+  #   variables:
+  #    - group: qa2-env
+  #   jobs:
+  #   - job: Build
+  #     steps:
+  #     # - script: docker system prune -f      
+  #     - checkout: self
+  #     - checkout: hmi-on-prem-local-app
+  #       clean: true
+  #     - template: on-prem-local-hmi/template/job-template.yml@hmi-on-prem-local-app
+  #       parameters:
+  #         buildQA: true
+
+  # - stage: OnPremBuildQAPuneEXT
+  #   displayName: "on-prem-ext-pnqa-build"
+  #   variables:
+  #    - group: ext-pn-env
+  #   jobs:
+  #   - job: Build
+  #     steps:
+  #     # - script: docker system prune -f      
+  #     - checkout: self
+  #     - checkout: hmi-on-prem-local-app
+  #       clean: true
+  #     - template: on-prem-local-hmi/template/job-template.yml@hmi-on-prem-local-app
+  #       parameters:
+  #         buildQA: true
+
+  # - stage: OnPremBuildQABlrEXT
+  #   displayName: "on-prem-ext-blrqa-build"
+  #   variables:
+  #    - group: ext-blr-env
+  #   jobs:
+  #   - job: Build
+  #     steps:
+  #     # - script: docker system prune -f      
+  #     - checkout: self
+  #     - checkout: hmi-on-prem-local-app
+  #       clean: true
+  #     - template: on-prem-local-hmi/template/job-template.yml@hmi-on-prem-local-app
+  #       parameters:
+  #         buildQA: true
+
+  - stage: OnPremBuildQAPuneIPcCH
+    displayName: "on-prem-pune-ipc-ch-build"
+    variables:
+     - group: pune-ipc-hmi-ch
+    jobs:
+    - job: Build
+      steps:
+      # - script: docker system prune -f      
+      - checkout: self
+      - checkout: hmi-on-prem-local-app
+        clean: true
+      - template: on-prem-local-hmi/template/job-template.yml@hmi-on-prem-local-app
+        parameters:
+          buildQA: true
+
+  # - stage: OnPremBuildQAPuneIPcVJ
+  #   displayName: "on-prem-pune-ipc-vj-build"
+  #   variables:
+  #    - group: ipc-env-vj
+  #   jobs:
+  #   - job: Build
+  #     steps:
+  #     # - script: docker system prune -f      
+  #     - checkout: self
+  #     - checkout: hmi-on-prem-local-app
+  #       clean: true
+  #     - template: on-prem-local-hmi/template/job-template.yml@hmi-on-prem-local-app
+  #       parameters:
+  #         buildQA: true
+
+  # - stage: OnPremBuildQABlrIPC
+  #   displayName: "on-prem-ipc-blrqa-build"
+  #   variables:
+  #    - group: ipc2-env
+  #   jobs:
+  #   - job: Build
+  #     steps:
+  #     # - script: docker system prune -f      
+  #     - checkout: self
+  #     - checkout: hmi-on-prem-local-app
+  #       clean: true
+  #     - template: on-prem-local-hmi/template/job-template.yml@hmi-on-prem-local-app
+  #       parameters:
+  #         buildQA: true
+
+  # - stage: OnPremBuildQAGeneva2
+  #   displayName: "ob-prem-geneva-qa-build"
+  #   variables:
+  #    - group: geneva-qa-env
+  #   jobs:
+  #   - job: Build
+  #     steps:
+  #     # - script: docker system prune -f      
+  #     - checkout: self
+  #     - checkout: hmi-on-prem-local-app
+  #       clean: true
+  #     - template: on-prem-local-hmi/template/job-template.yml@hmi-on-prem-local-app
+  #       parameters:
+  #         buildQA: true

@@ -1,0 +1,42 @@
+filebeat.inputs:
+  - type: container
+    container.ids:
+      - '*'
+    enabled: true
+    processors:
+      - add_docker_metadata: ~
+    fields_under_root: true
+    fields:
+      log_type: docker
+    symlinks: true
+    paths:
+      - /var/lib/docker/containers/*/*.log
+  - type: log
+    enabled: true
+    paths:
+      - /var/log/syslog
+      - /var/log/firewalld
+      - /var/log/messages
+      - /var/log/secure
+      - /var/log/auth.log
+      - /var/log/audit/audit.log
+    fields:
+      log_type: system_audit
+    fields_under_root: true
+## We can directly dump to opensearch but there is compatability issue So using logstash as output
+#output.elasticsearch:
+#  hosts: ["https://opensearch:9200"]
+#  username: "admin"
+#  password: "admin"
+#  index: "filebeat-%{[agent.version]}-%{+yyyy.MM.dd}"
+#  ssl.verification_mode: none
+#  #ssl.enabled: false
+#  allow_older_versions: true
+#setup.ilm.enabled: false
+#setup.kibana.enabled: false
+#setup.template.name: "filebeat"
+#setup.template.pattern: "filebeat-*"
+#logging.level: debug          ### to provide details debugging logs
+output.logstash:
+  enabled: true
+  hosts: ["logstash:5044"]
